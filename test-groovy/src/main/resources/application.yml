@@ -1,0 +1,5 @@
+micronaut:
+    application:
+        name: test-groovy
+redis:
+    uri: "redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}"
