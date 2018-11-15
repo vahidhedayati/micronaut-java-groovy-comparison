@@ -53,7 +53,7 @@ class OrdersRepository {
         return Mono.from(itemClient.find(
                 slug
         ).toFlowable())
-                .flatMap(petInstance -> {
+                .flatMap( {petInstance ->
                 ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration);
                 Orders  order = new Orders(petInstance, description, price);
                 Map<String, String> data = dataOf(price, description, order.getCurrency());
@@ -61,8 +61,8 @@ class OrdersRepository {
                 String key = petInstance.getName();
                 RedisReactiveCommands<String, String> redisApi = redisConnection.reactive();
         return redisApi.hmset(key,data)
-                .flatMap(success-> redisApi.expireat(key, expiryDate.toEpochSecond() ))
-                .map(ok -> order) ;
+                .flatMap({success-> redisApi.expireat(key, expiryDate.toEpochSecond() )})
+                .map({ok -> order}) ;
     });
     }
 
@@ -74,22 +74,26 @@ class OrdersRepository {
         return data;
     }
 
+    /**
+     * Broken conversion java groovy
+     * @param commands
+     * @return
+     */
     private Function<String, Mono<? extends Orders>> keyToOrder(RedisReactiveCommands<String, String> commands) {
-        return key -> {
+        return key {-> {
             Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
             Map<String, String> map = new HashMap<>(3);
-            return values.reduce(map, (all, keyValue) -> {
-                    all.put(keyValue.getKey(), keyValue.getValue());
+            return values.reduce(map, (all, keyValue) -> { all.put(keyValue.getKey(), keyValue.getValue());
             return all;
         })
             .map(ConvertibleValues::of)
-            .flatMap(entries -> {
+            .flatMap({entries -> {
             String description = entries.get("description", String.class).orElseThrow(() -> new IllegalStateException("No description"));
             BigDecimal price = entries.get("price", BigDecimal.class).orElseThrow(() -> new IllegalStateException("No price"));
             Flowable<Item> findItemFlowable = itemClient.find(key).toFlowable();
             return Mono.from(findItemFlowable).map(item -> new Orders(item, description, price));
-        });
-        };
+        }});
+        };}
     }
 
 }
