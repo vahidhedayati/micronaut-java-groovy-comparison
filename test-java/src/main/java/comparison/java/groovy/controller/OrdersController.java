@@ -50,14 +50,14 @@ public class OrdersController {
 
     @Get(uri = "/test")
     public Mono<List<Orders>> test() {
-        List<BigDecimal> sequences = new ArrayList<>();
-        BigDecimal price=new BigDecimal("0.11");
+        List<String> sequences = new ArrayList<>();
+
         for (int a=0; a < 1000; a++) {
-            sequences.add(new BigDecimal(price.intValue()+a));
+            sequences.add("a"+a);
             //sequences.add(new SequenceTest("Name: "+a.toString(),new Date()));
         }
         Flowable.fromIterable(sequences)
-                .forEach(k-> this.save("Executive Chair", k,Duration.ofMinutes(222222),"Some description "+k).subscribe());
+                .forEach(k-> this.save(k, new BigDecimal(12.22),Duration.ofMinutes(222222),"Some description "+k).subscribe());
 
         return ordersRepository.all();
     }

@@ -7,7 +7,7 @@ import io.reactivex.Maybe;
 
 import java.util.List;
 
-@Client(id = "groovy-item" , path="product")
+@Client(id = "product" , path="product")
 public interface ProductClient {
 
 

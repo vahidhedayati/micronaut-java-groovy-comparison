@@ -41,6 +41,23 @@ sudo docker run -d --name redis  redis:latest
 
 ```
 
+
+Run MongoDB Locally:
+```
+either 
+
+apt-get install mongodb
+or 
+ 
+sudo docker run -d -v /data/db:/data/db --name mymongo mongo:3.4.4
+```
+
+
+Run Consul Locally:
+```
+sudo docker run -p 8500:8500 consul
+```
+
 To start the apps:
 
 ```

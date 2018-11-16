@@ -48,18 +48,16 @@ public class BootStrap implements ApplicationEventListener<ServerStartupEvent> {
 
     void setupDefaults() {
 
-        ArrayList<String> beers =  new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
-        int i =0;
-        for (String beer : beers) {
-            System.out.println("Setting up product: "+beer);
-            i++;
+        for (int a=0; a < 1000; a++) {
+            System.out.println("Setting up product: a "+a);
+
             Maybe<Product> currentBeer = Flowable.fromPublisher(
                     getProduct()
-                            .find(eq("name", beer+i))
+                            .find(eq("name", "a"+a))
                             .limit(1)
             ).firstElement();
 
-            Product product = new Product(beer+i, beer+i, 2000, 12.49+i);
+            Product product = new Product("a"+a, "a"+a, 2000, 12.49+a);
             currentBeer.switchIfEmpty(
                     Single.fromPublisher(getProduct().insertOne(product))
                             .map(success -> product)

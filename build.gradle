@@ -51,6 +51,7 @@ subprojects { project ->
                
                 compile "io.micronaut:micronaut-http-client"
 
+                compile "io.micronaut:micronaut-discovery-client"
 
                 
                 runtime 'io.zipkin.brave:brave-instrumentation-http:5.4.2'

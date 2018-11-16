@@ -7,3 +7,9 @@ micronaut:
         port: 8081
 redis:
     uri: "redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}"
+---
+consul:
+    client:
+        registration:
+            enabled: true
+    defaultZone: "${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
