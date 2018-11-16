@@ -1,5 +1,9 @@
 micronaut:
     application:
         name: test-groovy
+
+    #Uncomment to set server port
+    server:
+        port: 8082
 redis:
     uri: "redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}"

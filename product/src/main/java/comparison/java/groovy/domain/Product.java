@@ -1,4 +1,4 @@
-package comparison.java.groovy.view;
+package comparison.java.groovy.domain;
 
 public class Product {
     private  String name;
@@ -12,6 +12,9 @@ public class Product {
         this.description = description;
         this.count = count;
         this.price = price;
+    }
+    public Product() {
+
     }
 
     public String getName() {

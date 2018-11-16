@@ -1,5 +1,9 @@
 micronaut:
     application:
         name: test-java
+
+    #Uncomment to set server port
+    server:
+        port: 8081
 redis:
     uri: "redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}"

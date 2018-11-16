@@ -14,7 +14,7 @@ interface ProductClient {
     Maybe<List<Product>> list()
 
 
-    @Get("/{name}")
+    @Get("/find/{name}")
     Maybe<Product> find(String name)
 
 
