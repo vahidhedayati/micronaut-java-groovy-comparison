@@ -18,7 +18,7 @@ class ProductController {
 
 
     @Get("/")
-    Maybe<List<Product>> list() {
+    List<Product> list() {
         return productService.findAll()
     }
 

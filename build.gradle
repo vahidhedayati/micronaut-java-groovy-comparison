@@ -49,12 +49,9 @@ subprojects { project ->
 
                 runtime "org.apache.tomcat:tomcat-jdbc:8.0.44"
                
-                compile "io.micronaut:tracing"
-                compile "io.micronaut:runtime"
                 compile "io.micronaut:micronaut-http-client"
 
-                compile "io.micronaut.configuration:mongo-reactive"
-            compile "io.micronaut:discovery-client"
+
                 
                 runtime 'io.zipkin.brave:brave-instrumentation-http:5.4.2'
                 runtime 'io.zipkin.reporter2:zipkin-reporter:2.7.9'

@@ -18,7 +18,7 @@ abstract class ProductService {
     abstract ShopTable save(@Valid ShopTable shopTable)
     abstract Chair save(@Valid Chair chair)
 
-    abstract Maybe<List<Product>> findAll()
+    abstract List<Product> findAll()
    // abstract List<ShopTable> findAllTables()
    // abstract List<Chair> findAllChairs()
 //

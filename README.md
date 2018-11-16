@@ -27,3 +27,17 @@ mn create-app -l groovy test-groovy
 
 ```
 
+
+Run Redis locally:
+
+````
+sudo apt-get install docker docker.io
+sudo docker run -d --name redis  redis:latest
+
+docker run -d --name redis -v localpath/redis.conf:/etc/redis/redis.conf  redis:latest
+```
+
+```
+./gradlew groovy-item:run test-groovy:run test-java:run --parallel 
+
+```

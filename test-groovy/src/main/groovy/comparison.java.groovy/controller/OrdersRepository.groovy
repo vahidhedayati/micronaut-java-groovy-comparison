@@ -56,7 +56,7 @@ class OrdersRepository {
             BigDecimal price,
             Duration duration,
             String description) {
-
+        System.out.println("Attempting to save "+name);
         return Mono.from(productClient.find(
                 name
         ).toFlowable())

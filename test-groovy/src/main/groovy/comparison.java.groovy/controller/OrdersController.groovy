@@ -6,6 +6,7 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.reactivex.Flowable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -42,6 +43,21 @@ class OrdersController {
     public Mono<List<Orders>> all() {
         return ordersRepository.all();
     }
+
+    @Get(uri = "/test")
+    public Mono<List<Orders>> test() {
+        List<BigDecimal> sequences = new ArrayList<>();
+        BigDecimal price=new BigDecimal("0.11")
+        for (int a=0; a < 1000; a++) {
+            sequences.add(new BigDecimal(price.intValue()+a));
+            //sequences.add(new SequenceTest("Name: "+a.toString(),new Date()));
+        }
+        Flowable.fromIterable(sequences)
+                .forEach({k-> this.save("Executive Chair", k,Duration.ofMinutes(222222),"Some description "+k).subscribe()});
+
+        returnordersRepository.all();
+    }
+
 
     /**
      * Consumes JSON and saves a new offer
