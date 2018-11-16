@@ -1,6 +1,6 @@
 package comparison.java.groovy.domain;
 
-import comparison.java.groovy.view.Item;
+import comparison.java.groovy.view.Product;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -9,14 +9,14 @@ import java.util.Locale;
 public class Orders {
 
 
-    private Item item;
+    private Product product;
 
     private String description;
     private BigDecimal price;
     private Currency currency = Currency.getInstance(Locale.UK);
 
-    public Orders(Item item,  String description, BigDecimal price) {
-        this.item = item;
+    public Orders(Product product,  String description, BigDecimal price) {
+        this.product = product;
         this.description = description;
         this.price = price;
     }
@@ -24,12 +24,12 @@ public class Orders {
     protected Orders() {
     }
 
-    public Item getItem() {
-        return item;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public String getDescription() {

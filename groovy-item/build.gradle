@@ -1,25 +1,40 @@
+
 apply plugin:"application"
 apply plugin:"groovy"
 
 version "0.1"
 group "groovy.item"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+    maven { url "https://plugins.gradle.org/m2/" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'io.micronaut:micronaut-bom:1.0.1'
+    }
+}
+
 dependencies {
+    implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut:micronaut-http-server-netty"
     compile "io.micronaut:micronaut-runtime-groovy"
-    compile "io.micronaut:micronaut-validation"
-    compile "io.micronaut:micronaut-http-client"
-    compile "io.micronaut:micronaut-http-server-netty"
+    implementation "io.micronaut:micronaut-validation"
     compileOnly "io.micronaut:micronaut-inject-groovy"
 
-    implementation "io.micronaut.configuration:micronaut-redis-lettuce"
+    implementation "io.micronaut.configuration:micronaut-hibernate-validator"
+    implementation "io.micronaut.configuration:micronaut-hibernate-gorm"
+    runtime "com.h2database:h2:1.4.196"
 
-    runtime "ch.qos.logback:logback-classic:1.2.3"
+    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }
-    testImplementation "com.github.kstyrc:embedded-redis:0.6"
 }
-
 
 shadowJar {
     mergeServiceFiles()
@@ -27,7 +42,7 @@ shadowJar {
 
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
 
-mainClassName = "test.groovy.Application"
+mainClassName = "groovy.item.Application"
 tasks.withType(GroovyCompile) {
     groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
 }

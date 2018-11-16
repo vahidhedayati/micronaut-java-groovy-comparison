@@ -1,8 +1,8 @@
 package comparison.java.groovy.controller
 
-import comparison.java.groovy.client.ItemClient
+import comparison.java.groovy.client.ProductClient
 import comparison.java.groovy.domain.Orders
-import comparison.java.groovy.view.Item
+import comparison.java.groovy.view.Product
 import io.lettuce.core.KeyValue
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.reactive.RedisReactiveCommands
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
+import javax.inject.Inject
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.function.Function
@@ -21,8 +22,11 @@ class OrdersRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(this.class)
 
+    @Inject
     private final StatefulRedisConnection<String, String> redisConnection
-    private final ItemClient itemClient
+
+    @Inject
+    private final ProductClient productClient
 
     /**
      * @return Returns all current offers
@@ -48,25 +52,25 @@ class OrdersRepository {
      *
      */
     public Mono<Orders> save(
-            String slug,
+            String name,
             BigDecimal price,
             Duration duration,
             String description) {
 
-        return Mono.from(itemClient.find(
-                slug
+        return Mono.from(productClient.find(
+                name
         ).toFlowable())
-                .flatMap({ petInstance ->
-            ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration);
-            Orders order = new Orders(petInstance, description, price);
-            Map<String, String> data = dataOf(price, description, order.getCurrency());
+                .flatMap({ productInstance ->
+            ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration)
+            Orders order = new Orders(productInstance, description, price)
+            Map<String, String> data = dataOf(price, description, order.getCurrency())
 
             String key = petInstance.getName();
-            RedisReactiveCommands<String, String> redisApi = redisConnection.reactive();
+            RedisReactiveCommands<String, String> redisApi = redisConnection.reactive()
             return redisApi.hmset(key, data)
                     .flatMap({ success -> redisApi.expireat(key, expiryDate.toEpochSecond()) })
-                    .map({ ok -> order });
-        });
+                    .map({ ok -> order })
+        })
     }
 
     private Map<String, String> dataOf(BigDecimal price, String description, Currency currency) {
@@ -74,7 +78,7 @@ class OrdersRepository {
         data.currency = currency.getCurrencyCode()
         data.price = price as String
         data.description = description
-        return data;
+        return data
     }
 
     /**
@@ -83,21 +87,21 @@ class OrdersRepository {
      * @return
      */
     private Function<String, Mono<? extends Orders>> keyToOrder(RedisReactiveCommands<String, String> commands) {
-        Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
-            Map<String, String> map = new HashMap<>(3);
+        Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description")
+            Map<String, String> map = new HashMap<>(3)
             values.reduce({all, keyValue->
-                all.put(keyValue.getKey(), keyValue.getValue());
+                all.put(keyValue.getKey(), keyValue.getValue())
                 return all
         }).map({entries -> ConvertibleValues.of(entries)})
-                    .flatMap({entries ->  bindEntry(entries)});
+                    .flatMap({entries ->  bindEntry(entries)})
         return values.key
     }
 
     private Mono<Orders> bindEntry(entries) {
-        String description = entries.get("description", String.class).orElseThrow({ new IllegalStateException("No description")});
-        BigDecimal price = entries.get("price", BigDecimal.class).orElseThrow({new IllegalStateException("No price")});
-        Flowable<Item> findItemFlowable = itemClient.find(key).toFlowable();
-        return Mono.from(findItemFlowable).map({item -> new Orders(item, description, price)});
+        String description = entries.get("description", String.class).orElseThrow({ new IllegalStateException("No description")})
+        BigDecimal price = entries.get("price", BigDecimal.class).orElseThrow({new IllegalStateException("No price")})
+        Flowable<Product> findItemFlowable = productClient.find(key).toFlowable()
+        return Mono.from(findItemFlowable).map({product -> new Orders(product, description, price)})
 
     }
 

@@ -5,7 +5,7 @@ dependencies {
     implementation "io.micronaut:inject"
     implementation "io.micronaut:validation"
     implementation "io.micronaut:runtime"
-    compile "io.micronaut:http-client"
+    compile "io.micronaut:micronaut-http-client"
     implementation "io.micronaut:http-server-netty"
 
     implementation "io.micronaut.configuration:micronaut-redis-lettuce"

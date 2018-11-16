@@ -5,14 +5,14 @@ version "0.1"
 group "test.groovy"
 dependencies {
     compile "io.micronaut:micronaut-runtime-groovy"
-    compile "io.micronaut:micronaut-validation"
-    compile "io.micronaut:micronaut-http-client"
-    compile "io.micronaut:micronaut-http-server-netty"
-    compileOnly "io.micronaut:micronaut-inject-groovy"
+    implementation "io.micronaut:micronaut-validation"
+    implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut:micronaut-http-server-netty"
+    implementation "io.micronaut:micronaut-inject-groovy"
 
     implementation "io.micronaut.configuration:micronaut-redis-lettuce"
 
-    runtime "ch.qos.logback:logback-classic:1.2.3"
+    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"

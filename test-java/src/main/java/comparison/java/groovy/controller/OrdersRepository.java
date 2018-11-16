@@ -1,27 +1,24 @@
 package comparison.java.groovy.controller;
-import comparison.java.groovy.client.ItemClient;
-import comparison.java.groovy.view.Item;
+
+import comparison.java.groovy.client.ProductClient;
+import comparison.java.groovy.domain.Orders;
+import comparison.java.groovy.view.Product;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
-import io.reactivex.Flowable;
 import io.micronaut.core.convert.value.ConvertibleValues;
-
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.function.Function;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import comparison.java.groovy.domain.Orders;
 
 import javax.inject.Singleton;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.function.Function;
 
 @Singleton
 public class OrdersRepository {
@@ -29,11 +26,11 @@ public class OrdersRepository {
     private static final Logger LOG = LoggerFactory.getLogger(OrdersRepository.class);
 
     private final StatefulRedisConnection<String, String> redisConnection;
-    private final ItemClient itemClient;
+    private final ProductClient productClient;
 
 
-    public OrdersRepository(ItemClient itemClient, StatefulRedisConnection<String, String> redisConnection) {
-        this.itemClient=itemClient;
+    public OrdersRepository(ProductClient productClient, StatefulRedisConnection<String, String> redisConnection) {
+        this.productClient=productClient;
         this.redisConnection = redisConnection;
     }
 
@@ -54,24 +51,24 @@ public class OrdersRepository {
     }
 
     public Mono<Orders> save(
-            String slug,
+            String name,
             BigDecimal price,
             Duration duration,
             String description) {
 
-        return Mono.from(itemClient.find(
-                slug
+        return Mono.from(productClient.find(
+                name
         ).toFlowable())
-                .flatMap(itemInstance -> {
+                .flatMap(productInstance -> {
                     ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration);
                     Orders  order = new Orders(
-                            itemInstance,
+                            productInstance,
                             description,
                             price
                     );
                     Map<String, String> data = dataOf(price, description, order.getCurrency());
 
-                    String key = itemInstance.getName();
+                    String key = productInstance.getName();
                     RedisReactiveCommands<String, String> redisApi = redisConnection.reactive();
                     return redisApi.hmset(key,data)
                             .flatMap(success-> redisApi.expireat(key, expiryDate.toEpochSecond() ))
@@ -99,8 +96,8 @@ public class OrdersRepository {
                     .flatMap(entries -> {
                         String description = entries.get("description", String.class).orElseThrow(() -> new IllegalStateException("No description"));
                         BigDecimal price = entries.get("price", BigDecimal.class).orElseThrow(() -> new IllegalStateException("No price"));
-                        Flowable<Item> findItemFlowable = itemClient.find(key).toFlowable();
-                        return Mono.from(findItemFlowable).map(item -> new Orders(item, description, price));
+                        Flowable<Product> findItemFlowable = productClient.find(key).toFlowable();
+                        return Mono.from(findItemFlowable).map(product -> new Orders(product, description, price));
                     });
         };
     }
