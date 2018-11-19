@@ -8,20 +8,20 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 import java.util.List;
-@Client(id = "product" , path="/product")
+//@Client(id = "product" , path="/product")
 @Fallback
 public class ProductFallBack  implements ProductClient {
 
-    @Get("/")
+    //@Get("/")
     public  Maybe<List<Product>> list() {
 
         return null;
     }
 
 
-    @Get("/find/{name}")
+    //@Get("/find/{name}")
     public Maybe<Product> find(String name) {
-        System.out.println("Fall back is called");
+        System.out.println("Fall back is called for "+name);
         return Single.just(new Product("Blank","description",0,0.00)).toMaybe();
     }
 }

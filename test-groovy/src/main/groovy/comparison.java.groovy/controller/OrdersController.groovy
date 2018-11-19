@@ -17,12 +17,13 @@ import java.time.Duration
 @Controller("/orders")
 class OrdersController {
 
-    OrdersRepository ordersRepository
-    Duration offerDelay
+    private final OrdersRepository ordersRepository
 
-    OrdersController(OrdersRepository ordersRepository,Duration offerDelay) {
+
+    @Inject
+    OrdersController(OrdersRepository ordersRepository) {
         this.ordersRepository=ordersRepository
-        this.offerDelay=offerDelay
+
     }
 
 
@@ -36,7 +37,7 @@ class OrdersController {
         return ordersRepository
                 .random()
                 .repeat(100)
-                .delayElements(offerDelay);
+                .delayElements(Duration.ofSeconds(3000));
     }
 
     /**
@@ -52,14 +53,14 @@ class OrdersController {
     public Mono<List<Orders>> test() {
         List<String> sequences = new ArrayList<>();
 
-        for (int a=0; a < 1000; a++) {
+        for (int a=0; a < 2; a++) {
             sequences.add("a"+a);
             //sequences.add(new SequenceTest("Name: "+a.toString(),new Date()));
         }
         Flowable.fromIterable(sequences)
                 .forEach({k-> this.save(k, new BigDecimal(12.22),Duration.ofMinutes(222222),"Some description "+k).subscribe()});
 
-        returnordersRepository.all();
+        return all();
     }
 
 

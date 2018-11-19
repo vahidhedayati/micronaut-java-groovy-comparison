@@ -119,6 +119,7 @@ public class OrdersRepository {
 
     private Function<String, Mono<? extends Orders>> keyToOrder(RedisReactiveCommands<String, String> commands) {
         return key -> {
+            System.out.println("JAVA KEY ------------------------------------------------->>>>"+key);
             Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
             Map<String, String> map = new HashMap<>(3);
             return values.reduce(map, (all, keyValue) -> {

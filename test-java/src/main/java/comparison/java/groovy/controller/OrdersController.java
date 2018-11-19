@@ -52,7 +52,7 @@ public class OrdersController {
     public Mono<List<Orders>> test() {
         List<String> sequences = new ArrayList<>();
 
-        for (int a=0; a < 1000; a++) {
+        for (int a=0; a < 2; a++) {
             sequences.add("a"+a);
             //sequences.add(new SequenceTest("Name: "+a.toString(),new Date()));
         }
