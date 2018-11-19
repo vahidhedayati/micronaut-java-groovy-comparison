@@ -2,6 +2,7 @@ package comparison.java.groovy.controller
 
 import comparison.java.groovy.domain.Orders
 import comparison.java.groovy.view.Product
+import io.micronaut.context.annotation.Value
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -16,12 +17,15 @@ import java.time.Duration
 @Controller("/orders")
 class OrdersController {
 
-
-    @Inject
     OrdersRepository ordersRepository
-
-    @Inject
     Duration offerDelay
+
+    OrdersController(OrdersRepository ordersRepository,Duration offerDelay) {
+        this.ordersRepository=ordersRepository
+        this.offerDelay=offerDelay
+    }
+
+
 
     /**
      * A non-blocking infinite JSON stream of offers that change every 10 seconds

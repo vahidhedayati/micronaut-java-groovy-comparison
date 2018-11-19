@@ -19,7 +19,6 @@ import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 @Controller("/product")
-@Validated
 public class ProductController implements ProductOperations<Product> {
 
     final EmbeddedServer embeddedServer;
@@ -54,11 +53,15 @@ public class ProductController implements ProductOperations<Product> {
     @Get("/find/{name}")
     @Override
     public Maybe<Product> find(String name) {
-        return Flowable.fromPublisher(
+        System.out.println("Att "+name);
+        Maybe<Product> o = Flowable.fromPublisher(
                 getCollection()
                         .find(eq("name", name))
                         .limit(1)
         ).firstElement();
+
+        System.out.println("__________________________________Found "+o.subscribe());
+        return o;
     }
 
     @Override

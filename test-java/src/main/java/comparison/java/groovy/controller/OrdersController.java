@@ -59,7 +59,7 @@ public class OrdersController {
         Flowable.fromIterable(sequences)
                 .forEach(k-> this.save(k, new BigDecimal(12.22),Duration.ofMinutes(222222),"Some description "+k).subscribe());
 
-        return ordersRepository.all();
+       return all();
     }
     /**
      * Consumes JSON and saves a new offer

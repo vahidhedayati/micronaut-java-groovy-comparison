@@ -45,12 +45,7 @@ class OrdersRepository {
         return commands.randomkey().flatMap(keyToOrder(commands));
     }
 
-    /**
-     * By default the RXJAVA Flowable -> { } elements break groovy code -
-     *
-     * Groovy does not like ->
-     *
-     */
+
     public Mono<Orders> save(
             String name,
             BigDecimal price,
@@ -81,15 +76,11 @@ class OrdersRepository {
         return data
     }
 
-    /**
-     * Broken conversion java groovy / now working but not sure if it is what is supposed to be and do :)
-     * @param commands
-     * @return
-     */
     private Function<String, Mono<? extends Orders>> keyToOrder(RedisReactiveCommands<String, String> commands) {
         Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description")
             Map<String, String> map = new HashMap<>(3)
-            values.reduce({all, keyValue->
+        //As per answer by James Kleeh on https://stackoverflow.com/questions/53324472/micronaut-petstore-a-code-segment-from-java-to-groovy
+        values.reduce(map, {all, keyValue ->
                 all.put(keyValue.getKey(), keyValue.getValue())
                 return all
         }).map({entries -> ConvertibleValues.of(entries)})

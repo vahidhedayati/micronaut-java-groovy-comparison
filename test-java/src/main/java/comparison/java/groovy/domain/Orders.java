@@ -56,4 +56,9 @@ public class Orders {
         this.currency = currency;
     }
 
+
+    public String toString() {
+        return product.getName()+" - "+description+" - "+price+" - "+currency;
+    }
+
 }

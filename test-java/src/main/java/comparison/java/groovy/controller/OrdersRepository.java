@@ -8,6 +8,8 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.micronaut.core.convert.value.ConvertibleValues;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -50,17 +52,45 @@ public class OrdersRepository {
         return commands.randomkey().flatMap(keyToOrder(commands));
     }
 
+    public Mono save1(String name, BigDecimal price, Duration duration, String description) {
+
+        Maybe<Product> product =  productClient.find(name);
+        if (product!=null) {
+            product.subscribe(beer -> System.out.println("Current product Object -->>>" + beer.getName()));
+        } else {
+            System.out.println("ERRRRR");
+        }
+        ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration);
+        return Mono.from(product.toFlowable()).flatMap(productInstance -> {
+                Orders  order = new Orders(productInstance, description, price);
+                Map<String, String> data = dataOf(price, description, order.getCurrency());
+
+            String key = productInstance.getName();
+            RedisReactiveCommands<String, String> redisApi = redisConnection.reactive();
+            Mono<Orders> o =  redisApi.hmset(key,data)
+                    .flatMap(success-> redisApi.expireat(key, expiryDate.toEpochSecond() ))
+                    .map(ok -> order) ;
+            System.out.println("-------------->"+o.subscribe());
+            return o;
+        });
+
+
+    }
+
     public Mono<Orders> save(
             String name,
             BigDecimal price,
             Duration duration,
             String description) {
 
-        System.out.println("Attempting to save "+name);
-        return Mono.from(productClient.find(
-                name
-        ).toFlowable())
+        System.out.println("Attempting to save ->>>"+name);
+
+
+
+        //System.out.println("Attempting to save <<<<<<<<<<<<<<<<<<<<<<<<<->>> "+p);
+        return Mono.from(productClient.find(name).toFlowable())
                 .flatMap(productInstance -> {
+                    System.out.println("--------------------------->"+productInstance.getName());
                     ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration);
                     Orders  order = new Orders(
                             productInstance,
@@ -71,9 +101,11 @@ public class OrdersRepository {
 
                     String key = productInstance.getName();
                     RedisReactiveCommands<String, String> redisApi = redisConnection.reactive();
-                    return redisApi.hmset(key,data)
+                    Mono<Orders> o =  redisApi.hmset(key,data)
                             .flatMap(success-> redisApi.expireat(key, expiryDate.toEpochSecond() ))
                             .map(ok -> order) ;
+                    System.out.println("-------------->"+o.subscribe());
+                    return o;
                 });
     }
 
@@ -98,6 +130,7 @@ public class OrdersRepository {
                         String description = entries.get("description", String.class).orElseThrow(() -> new IllegalStateException("No description"));
                         BigDecimal price = entries.get("price", BigDecimal.class).orElseThrow(() -> new IllegalStateException("No price"));
                         Flowable<Product> findItemFlowable = productClient.find(key).toFlowable();
+
                         return Mono.from(findItemFlowable).map(product -> new Orders(product, description, price));
                     });
         };
