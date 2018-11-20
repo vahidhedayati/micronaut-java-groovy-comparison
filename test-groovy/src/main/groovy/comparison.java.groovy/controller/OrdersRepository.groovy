@@ -37,7 +37,7 @@ class OrdersRepository {
     public Mono<List<Orders>> all() {
         RedisReactiveCommands<String, String> commands = redisConnection.reactive();
 
-        return commands.keys("*").flatMap(keyToOrder(commands));
+        return commands.keys("*").flatMap(keyToOrder(commands)).collectList();
     }
 
     /**
@@ -83,37 +83,31 @@ class OrdersRepository {
         return data
     }
 
-    private def keyToOrder22(aa) {
-        println aa+" "+" "+aa.getClass()
-    }
-
+    /**
+     * Thanks to James Kleeh this Java function is now fully converted over to groovy - and working identical results
+     * https://stackoverflow.com/questions/53324472/micronaut-petstore-a-code-segment-from-java-to-groovy
+     * product from the JAVA Code can be found here:
+     * https://github.com/vahidhedayati/micronaut-java-groovy-comparison/blob/master/test-java/src/main/java/comparison/java/groovy/controller/OrdersRepository.java#L120-L138
+     * @param commands
+     * @return
+     */
     private Function<String, Mono<? extends Orders>>  keyToOrder(RedisReactiveCommands<String, String> commands) {
-        println "<<< ${commands}"
-        Flux<KeyValue<String, String>> values
-         commands.keys("*").subscribe({ key ->
-             //def key = k.keys("*").subscribe()
-            println "--> $key  = key"
-            values = commands.hmget(key, "price", "description")
-            Map map = [:]
-            //As per answer by James Kleeh on https://stackoverflow.com/questions/53324472/micronaut-petstore-a-code-segment-from-java-to-groovy
-            values.reduce(map, { all, keyValue ->
-                all.put(keyValue.getKey(), keyValue.getValue())
+        return { key ->
+                Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
+            Map<String, String> map = new HashMap<>(3);
+            return values.reduce(map, {all, keyValue ->
+                all.put(keyValue.getKey(), keyValue.getValue());
                 return all
-            }).map({ entries -> ConvertibleValues.of(entries) })
-                    .flatMap({ entries -> bindEntry(entries,key) })
-
-
-        })
-        return values
+            }).map({entries -> ConvertibleValues.of(entries)})
+                    .flatMap({entries ->  bindEntry(entries,key)});
+            return values.key
+        }
     }
 
     private Mono<Orders> bindEntry(entries,key) {
-        println "------------------------------------- entries = ${entries} vs ${entries.getClass()}"
         String description = entries.get("description", String.class).orElseThrow({ new IllegalStateException("No description")})
         BigDecimal price = entries.get("price", BigDecimal.class).orElseThrow({new IllegalStateException("No price")})
         Flowable<Product> findItemFlowable = productClient.find(key).toFlowable()
-        //m."${key}"=Mono.from(findItemFlowable).map({product -> new Orders(product, description, price)})
-        //return m."${key}"
         return Mono.from(findItemFlowable).map({product -> new Orders(product, description, price)})
     }
 
