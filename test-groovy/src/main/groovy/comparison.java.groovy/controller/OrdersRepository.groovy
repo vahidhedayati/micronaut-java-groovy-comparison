@@ -36,7 +36,6 @@ class OrdersRepository {
      */
     public Mono<List<Orders>> all() {
         RedisReactiveCommands<String, String> commands = redisConnection.reactive();
-
         return commands.keys("*").flatMap(keyToOrder(commands)).collectList();
     }
 
@@ -93,14 +92,13 @@ class OrdersRepository {
      */
     private Function<String, Mono<? extends Orders>>  keyToOrder(RedisReactiveCommands<String, String> commands) {
         return { key ->
-                Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
+            Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
             Map<String, String> map = new HashMap<>(3);
             return values.reduce(map, {all, keyValue ->
                 all.put(keyValue.getKey(), keyValue.getValue());
                 return all
             }).map({entries -> ConvertibleValues.of(entries)})
                     .flatMap({entries ->  bindEntry(entries,key)});
-            return values.key
         }
     }
 
