@@ -21,7 +21,20 @@ public class TestXml {
         ArrayList<String> input =  new ArrayList<String>();
         try {
             //byte[] XML = "<html>Very <b>simple</b> input document!</html>";
-            byte[] input_part1 = "<root>val".getBytes("UTF-8");
+            byte[] input_part1 =  ("<?xml version=\"1.0\" encoding=\"utf-8\"?><breakfast_menu>" +
+                    "<food>" +
+                        "<name>Belgian Waffles</name>" +
+                        "<price>$5.95</price>" +
+                        "<description>Two of our famous Belgian Waffles with plenty of real maple syrup</description>" +
+                        "<calories>650</calories>" +
+                    "</food>" +
+                    "<food>" +
+                    "<name>Strawberry Belgian Waffles</name>" +
+                    "<price>$7.95</price>" +
+                    "<description>Light Belgian waffles covered with strawberries and whipped cream - yes please can I have some more</description>" +
+                    "<calories>950</calories>" +
+                    "</food>" +
+                    "</breakfast_menu>").getBytes("UTF-8");
             AsyncXMLStreamReader<AsyncByteArrayFeeder> asyncXMLStreamReader = new InputFactoryImpl().createAsyncFor(input_part1);
             final AsyncInputFeeder asyncInputFeeder = asyncXMLStreamReader.getInputFeeder();
             int inputPtr = 0; // as we feed byte at a time
