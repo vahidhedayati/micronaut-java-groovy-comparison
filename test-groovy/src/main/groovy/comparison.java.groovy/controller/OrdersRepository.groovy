@@ -59,11 +59,7 @@ class OrdersRepository {
         ).toFlowable())
                 .flatMap({ productInstance ->
             ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration)
-            Orders order = new Orders()
-            order.product=productInstance
-            order.price=price
-            order.description=description
-
+            Orders order = new Orders(productInstance,description,price)
             Map<String, String> data = dataOf(price, description, order.getCurrency())
 
             String key = productInstance.getName();
