@@ -91,11 +91,8 @@ http://localhost:8083/product/
 {"name":"b2","description":"b2","count":2000,"price":14.49}]
 ```
 
+These are the identical tests so far:
 
-TODO
----
-
-These appear to be broken at this stage :
 ```
 
 http://localhost:8081/orders/test
@@ -103,3 +100,13 @@ http://localhost:8081/orders/test
 http://localhost:8082/orders/test
 
 ```
+
+XML Parsing a string that is converted to byte
+
+http://localhost:8081/orders/xml
+```
+[["start document","start element: root","characters: val","start element: root","characters: v","characters: a","characters: l"]]
+
+```
+
+

@@ -20,10 +20,12 @@ public class OrdersController {
 
     private final OrdersRepository ordersRepository;
     private final Duration offerDelay;
+    private final TestXml testXml;
 
-    public OrdersController(OrdersRepository ordersRepository, @Value("${offers.delay:3s}") Duration offerDelay) {
+    public OrdersController(OrdersRepository ordersRepository, @Value("${offers.delay:3s}") Duration offerDelay,TestXml testXml) {
         this.ordersRepository = ordersRepository;
         this.offerDelay = offerDelay;
+        this.testXml=testXml;
     }
 
     /**
@@ -61,6 +63,13 @@ public class OrdersController {
 
        return all();
     }
+
+    @Get(uri = "/xml")
+    public Flux testXml() {
+        return testXml.runMe();
+    }
+
+
     /**
      * Consumes JSON and saves a new offer
      *
