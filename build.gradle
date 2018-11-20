@@ -53,8 +53,16 @@ subprojects { project ->
 
                 compile "io.micronaut:micronaut-discovery-client"
 
-                
-                runtime 'io.zipkin.brave:brave-instrumentation-http:5.4.2'
+                // https://mvnrepository.com/artifact/com.fasterxml/aalto-xml
+                //Ultra-high performance non-blocking XML processor (Stax API + extensions)
+                compile group: 'com.fasterxml', name: 'aalto-xml', version: '1.1.1'
+
+
+            // https://mvnrepository.com/artifact/io.netty/netty-codec-xml
+            compile group: 'io.netty', name: 'netty-codec-xml', version: '4.1.31.Final'
+
+
+            runtime 'io.zipkin.brave:brave-instrumentation-http:5.4.2'
                 runtime 'io.zipkin.reporter2:zipkin-reporter:2.7.9'
                 compile 'io.opentracing.brave:brave-opentracing:0.33.3'
 
