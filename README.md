@@ -72,6 +72,7 @@ Produces something like this:
  
 > 8081 = test-java application
 
+[Youtube testing groovy/java video](https://www.youtube.com/watch?v=hLsbvfz7FWY)
 
 Some URLS:
 ```
