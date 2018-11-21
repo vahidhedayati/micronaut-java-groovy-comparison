@@ -121,8 +121,9 @@ http://localhost:8081/orders/xmltest
 
 This sends a http call to xml-streamer - which generates a large XML file accessible via http://localhost:8085/stream/test
 
-The next phase is to parse this xml that is visible now and is using the standard parsing to show tags
-Currently going to xmltest you will see the following on the screen - which is a basic attempt to parse the xml 
+The code then attempts to parse the xml and collect an arrayList of a new object called IncommingOrders - this is now ready to be pushed into redis or whatever db.
+
+It could have done the pushing to db as it did the parsing rather than collecting it into yet another array. This is all purely for demo of streaming / parsing xml via a micronaut application
 
 ```
 
