@@ -1,4 +1,4 @@
-package comparison.java.groovy;
+package comparison.java.groovy.xml;
 
 import com.fasterxml.aalto.AsyncByteArrayFeeder;
 import com.fasterxml.aalto.AsyncXMLStreamReader;
