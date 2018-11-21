@@ -1,7 +1,11 @@
 package comparison.java.groovy.controller;
 
+import comparison.java.groovy.client.StreamClient;
 import comparison.java.groovy.domain.Orders;
 import io.micronaut.context.annotation.Value;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -14,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.Object;
 
 @Controller("/orders")
 public class OrdersController {
@@ -21,11 +26,13 @@ public class OrdersController {
     private final OrdersRepository ordersRepository;
     private final Duration offerDelay;
     private final TestXml testXml;
+    private final StreamClient streamClient;
 
-    public OrdersController(OrdersRepository ordersRepository, @Value("${offers.delay:3s}") Duration offerDelay,TestXml testXml) {
+    public OrdersController(OrdersRepository ordersRepository, @Value("${offers.delay:3s}") Duration offerDelay,TestXml testXml,StreamClient streamClient) {
         this.ordersRepository = ordersRepository;
         this.offerDelay = offerDelay;
         this.testXml=testXml;
+        this.streamClient=streamClient;
     }
 
     /**
@@ -49,8 +56,18 @@ public class OrdersController {
         return ordersRepository.all();
     }
 
+    @Get(uri = "/xmltest")
+    public Flux xmltest() {
+        HttpResponse response = streamClient.test();
+        System.out.println(response+" ----- "+response.body());
+        System.out.println(response.body().toString());
+        return testXml.parseXml(response);
+        //response.body() == 'Micronaut is awesome'
+        //return response.body();
+    }
 
-    @Get(uri = "/test")
+
+@Get(uri = "/test")
     public Mono<List<Orders>> test() {
         List<String> sequences = new ArrayList<>();
 
@@ -66,6 +83,7 @@ public class OrdersController {
 
     @Get(uri = "/xml")
     public Flux testXml() {
+
         return testXml.runMe();
     }
 

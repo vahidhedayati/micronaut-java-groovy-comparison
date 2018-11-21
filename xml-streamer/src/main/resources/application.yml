@@ -1,0 +1,12 @@
+micronaut:
+    application:
+        name: streamer
+    #Uncomment to set server port
+    server:
+        port: 8085
+---
+consul:
+    client:
+        registration:
+            enabled: true
+    defaultZone: "${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"

@@ -1,3 +1,4 @@
 include "product"
 include "test-groovy"
 include "test-java"
+include "xml-streamer"

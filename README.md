@@ -61,7 +61,7 @@ sudo docker run -p 8500:8500 consul
 To start the apps:
 
 ```
-./gradlew product:run test-groovy:run test-java:run --parallel 
+./gradlew product:run test-groovy:run test-java:run xml-streamer:run --parallel 
 
 ```
 
@@ -109,4 +109,8 @@ http://localhost:8081/orders/xml
 
 ```
 
+
+Stream testing
+
+http://localhost:8085/stream/test
 
