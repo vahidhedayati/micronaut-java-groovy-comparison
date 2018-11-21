@@ -59,7 +59,7 @@ public class OrdersController {
     @Get(uri = "/xmltest")
     public Flux xmltest() {
         HttpResponse response = streamClient.test();
-        System.out.println(response+" ----- "+response.body());
+        //System.out.println(response+" ----- "+response.body());
         System.out.println(response.body().toString());
         return testXml.parseXml(response);
         //response.body() == 'Micronaut is awesome'

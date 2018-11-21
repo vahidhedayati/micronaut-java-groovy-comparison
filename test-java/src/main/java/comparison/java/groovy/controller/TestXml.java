@@ -4,6 +4,7 @@ import com.fasterxml.aalto.AsyncByteArrayFeeder;
 import com.fasterxml.aalto.AsyncInputFeeder;
 import com.fasterxml.aalto.AsyncXMLStreamReader;
 import com.fasterxml.aalto.stax.InputFactoryImpl;
+import comparison.java.groovy.view.IncommingOrders;
 import io.micronaut.http.HttpResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Flux;
 
 import javax.inject.Singleton;
 import javax.xml.stream.events.XMLEvent;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +29,14 @@ public class TestXml {
 
     public Flux parseXml(HttpResponse response ) {
         ArrayList<String> input =  new ArrayList<String>();
+        List<IncommingOrders> orders = new ArrayList<>();
         try {
             CompositeByteBuf content = (CompositeByteBuf) response.body();
             byte[] bytes = new byte[content.readableBytes()];
             int readerIndex = content.readerIndex();
             content.getBytes(readerIndex, bytes);
             String read = new String(bytes);
-            System.out.println("RES"+ read);
-
-           /// String[] array = content1.toString(CharsetUtil.UTF_8).split("\\|", -1);
-           /// System.out.println("We got "+array.length);
-            //for(int i = 0; i < array.length; i++) {
-                //System.out.println("Working on "+array[i]);
+            //System.out.println("RES"+ read);
 
                 byte[] input_part1 = read.getBytes("UTF-8");
 
@@ -48,7 +46,10 @@ public class TestXml {
                 int type = 0;
 
                 int bufferFeedLength = 1; // feed 1 byte at a time to the asynchronous parser
+                boolean recordItem=false;
 
+                IncommingOrders order = new IncommingOrders();
+                String lastItem="";
                 do {
                     //keep looping till event is complete
                     while ((type = asyncXMLStreamReader.next()) == AsyncXMLStreamReader.EVENT_INCOMPLETE) {
@@ -63,24 +64,53 @@ public class TestXml {
                     //handle parser event and extract parsed data
                     switch (type) {
                         case XMLEvent.START_DOCUMENT:
-                            System.out.println("start document");
-                            input.add("start document");
+                            //System.out.println("start document");
+                           // input.add("start document");
+
                             break;
                         case XMLEvent.START_ELEMENT:
-                            System.out.println("start element: " + asyncXMLStreamReader.getName());
-                            input.add("start element: " + asyncXMLStreamReader.getName());
+                            //System.out.println("start element: " + asyncXMLStreamReader.getName());
+                            //input.add("start element: " + asyncXMLStreamReader.getName());
+
+                            if (asyncXMLStreamReader.getName().toString()=="order") {
+                                recordItem=true;
+                                lastItem="";
+                                order = new IncommingOrders();
+                            } else {
+                                if (recordItem) {
+                                    lastItem=asyncXMLStreamReader.getName().toString();
+                                }
+                            }
+
                             break;
                         case XMLEvent.CHARACTERS:
-                            System.out.println("characters: " + asyncXMLStreamReader.getText());
-                            input.add("characters: " + asyncXMLStreamReader.getText());
+                            //System.out.println("characters: " + asyncXMLStreamReader.getText());
+                            //input.add("characters: " + asyncXMLStreamReader.getText());
+                            if (lastItem=="price") {
+                                //System.out.println("price characters: " + asyncXMLStreamReader.getText());
+                                //order.setPrice(new BigDecimal(asyncXMLStreamReader.getText()));
+                                order.setPrice(new BigDecimal(asyncXMLStreamReader.getText().toString()));
+                            }
+                            if (lastItem=="description") {
+                                order.setDescription(asyncXMLStreamReader.getText());
+                            }
+                            if (lastItem=="name") {
+                                order.setName(asyncXMLStreamReader.getText());
+                            }
                             break;
                         case XMLEvent.END_ELEMENT:
-                            System.out.println("end element: " + asyncXMLStreamReader.getName());
-                            input.add("end element: " + asyncXMLStreamReader.getName());
+                            //System.out.println("end element: " + asyncXMLStreamReader.getName());
+                            //input.add("end element: " + asyncXMLStreamReader.getName());
+                            if (asyncXMLStreamReader.getName().toString()=="order") {
+                                recordItem=false;
+                                orders.add(order);
+                                lastItem="";
+                            }
                             break;
                         case XMLEvent.END_DOCUMENT:
-                            System.out.println("end document");
-                            input.add("end document");
+                            //System.out.println("end document");
+                           // input.add("end document");
+
                             break;
                         default:
                             break;
@@ -89,9 +119,20 @@ public class TestXml {
                 } while (type != XMLEvent.END_DOCUMENT);
 
                 asyncXMLStreamReader.close();
-            //}
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        System.out.println("We have "+orders.size());
+        for (int a=0; a < orders.size(); a++) {
+            IncommingOrders orders1 = orders.get(a);
+            //
+            System.out.println("We have "+ orders1.getName()+" "+orders1.getDescription()+" "+orders1.getPrice());
+            input.add("Simply now add to redis: We have received IncommingOrders"+ orders1.getName()+" "+orders1.getDescription()+" "+orders1.getPrice());
+            /**
+             *
+             * We would now save the item here
+             */
         }
         return Flux.just(input);
     }
