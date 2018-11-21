@@ -6,22 +6,14 @@ import com.fasterxml.aalto.AsyncXMLStreamReader;
 import com.fasterxml.aalto.stax.InputFactoryImpl;
 import comparison.java.groovy.view.IncommingOrders;
 import io.micronaut.http.HttpResponse;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.util.CharsetUtil;
-import io.netty.util.ReferenceCountUtil;
 import reactor.core.publisher.Flux;
 
 import javax.inject.Singleton;
 import javax.xml.stream.events.XMLEvent;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-
-import static javax.xml.stream.XMLStreamConstants.END_DOCUMENT;
 
 @Singleton
 public class TestXml {
