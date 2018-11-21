@@ -1,5 +1,6 @@
 package comparison.java.groovy.controller
 
+import comparison.java.groovy.client.StreamClient
 import comparison.java.groovy.domain.Orders
 import comparison.java.groovy.view.Product
 import io.micronaut.context.annotation.Value
@@ -18,15 +19,20 @@ import java.time.Duration
 class OrdersController {
 
     private final OrdersRepository ordersRepository
-
+    private final TestXml testXml
+    private final StreamClient streamClient
 
     @Inject
-    OrdersController(OrdersRepository ordersRepository) {
+    OrdersController(OrdersRepository ordersRepository, TestXml testXml, StreamClient streamClient) {
         this.ordersRepository=ordersRepository
-
+        this.testXml=testXml
+        this.streamClient=streamClient
     }
 
-
+    @Get(uri = "/xmltest")
+    public Mono<List<Orders>>  xmltest() {
+        return testXml.parseXml(ordersRepository,streamClient.test());
+    }
 
     /**
      * A non-blocking infinite JSON stream of offers that change every 10 seconds

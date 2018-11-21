@@ -4,14 +4,17 @@ import com.fasterxml.aalto.AsyncByteArrayFeeder;
 import com.fasterxml.aalto.AsyncInputFeeder;
 import com.fasterxml.aalto.AsyncXMLStreamReader;
 import com.fasterxml.aalto.stax.InputFactoryImpl;
+import comparison.java.groovy.domain.Orders;
 import comparison.java.groovy.view.IncommingOrders;
 import io.micronaut.http.HttpResponse;
 import io.netty.buffer.CompositeByteBuf;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.inject.Singleton;
 import javax.xml.stream.events.XMLEvent;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +22,8 @@ import java.util.List;
 public class TestXml {
 
 
-    public Flux parseXml(HttpResponse response ) {
-        ArrayList<String> input =  new ArrayList<String>();
+    public  Mono<List<Orders>> parseXml(  OrdersRepository ordersRepository,HttpResponse response ) {
+       List<Orders> input =new ArrayList<>();
         List<IncommingOrders> orders = new ArrayList<>();
         try {
             CompositeByteBuf content = (CompositeByteBuf) response.body();
@@ -78,16 +81,16 @@ public class TestXml {
                         case XMLEvent.CHARACTERS:
                             //System.out.println("characters: " + asyncXMLStreamReader.getText());
                             //input.add("characters: " + asyncXMLStreamReader.getText());
-                            if (lastItem=="price") {
-                                //System.out.println("price characters: " + asyncXMLStreamReader.getText());
-                                //order.setPrice(new BigDecimal(asyncXMLStreamReader.getText()));
-                                order.setPrice(new BigDecimal(asyncXMLStreamReader.getText().toString()));
-                            }
-                            if (lastItem=="description") {
-                                order.setDescription(asyncXMLStreamReader.getText());
-                            }
-                            if (lastItem=="name") {
-                                order.setName(asyncXMLStreamReader.getText());
+                            switch (lastItem) {
+                                case "price":
+                                    order.setPrice(new BigDecimal(asyncXMLStreamReader.getText().toString()));
+                                    break;
+                                case "description":
+                                    order.setDescription(asyncXMLStreamReader.getText());
+                                    break;
+                                case "name":
+                                    order.setName(asyncXMLStreamReader.getText());
+                                    break;
                             }
                             break;
                         case XMLEvent.END_ELEMENT:
@@ -118,20 +121,15 @@ public class TestXml {
         System.out.println("We have "+orders.size());
         for (int a=0; a < orders.size(); a++) {
             IncommingOrders orders1 = orders.get(a);
-            //
-            System.out.println("We have "+ orders1.getName()+" "+orders1.getDescription()+" "+orders1.getPrice());
-            input.add("Simply now add to redis: We have received IncommingOrders"+ orders1.getName()+" "+orders1.getDescription()+" "+orders1.getPrice());
-            /**
-             *
-             * We would now save the item here
-             */
+            //System.out.println("About to save order"+orders1.getName());
+            input.add(ordersRepository.save(
+                    orders1.getName(), orders1.getPrice(), Duration.ofMinutes(222222), orders1.getDescription()
+            ).block());
         }
-        return Flux.just(input);
+        return Mono.just(input);
     }
 
-    private static void handleArray(byte[] array, int offset, int len) {
 
-    }
     public Flux runMe() {
         System.out.println("Run me is called");
         ArrayList<String> input =  new ArrayList<String>();

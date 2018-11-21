@@ -57,17 +57,12 @@ public class OrdersController {
     }
 
     @Get(uri = "/xmltest")
-    public Flux xmltest() {
-        HttpResponse response = streamClient.test();
-        //System.out.println(response+" ----- "+response.body());
-        System.out.println(response.body().toString());
-        return testXml.parseXml(response);
-        //response.body() == 'Micronaut is awesome'
-        //return response.body();
+    public Mono<List<Orders>>  xmltest() {
+        return testXml.parseXml(ordersRepository,streamClient.test());
     }
 
 
-@Get(uri = "/test")
+    @Get(uri = "/test")
     public Mono<List<Orders>> test() {
         List<String> sequences = new ArrayList<>();
 
