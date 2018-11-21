@@ -114,3 +114,20 @@ Stream testing
 
 http://localhost:8085/stream/test
 
+
+
+XML Parsing test: Started on this URL:
+http://localhost:8081/orders/xmltest
+
+This sends a http call to xml-streamer - which generates a large XML file accessible via http://localhost:8085/stream/test
+
+The next phase is to parse this xml that is visible now and is using the standard parsing to show tags
+Currently going to xmltest you will see the following on the screen - which is a basic attempt to parse the xml 
+
+```
+
+[["start document","start element: orders","characters: \n","start element: order","start element: name","characters: a0","end element: name","start element: description","characters: a0","end element: description","start element: price","characters: 12.2200000000000006394884621840901672840118408203125","end element: price","end element: order","characters:  ","start element: order","start element: name","characters: a1","end element: name","start element: description","characters: a1","end element: description","start element: price","characters: 12.2200000000000006394884621840901672840118408203125","end element: price","end element: order","characters:  ","start element: order","start element: name","characters: a2","end element: name","start element: description","characters: a2","end element: description","start element: price","characters: 12.2200000000000006394884621840901672840118408203125","end element: price","end element: order","characters:  ","start element: order","start element: 
+
+
+```
+

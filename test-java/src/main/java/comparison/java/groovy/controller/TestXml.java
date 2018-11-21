@@ -7,6 +7,7 @@ import com.fasterxml.aalto.stax.InputFactoryImpl;
 import io.micronaut.http.HttpResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 
 import javax.inject.Singleton;
 import javax.xml.stream.events.XMLEvent;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,41 +26,21 @@ public class TestXml {
 
 
     public Flux parseXml(HttpResponse response ) {
-        System.out.println("Starting parser");
         ArrayList<String> input =  new ArrayList<String>();
         try {
-
-            System.out.println("Starting parser 1"+response.body() );
             CompositeByteBuf content = (CompositeByteBuf) response.body();
-            //System.out.println("Starting parser 1"+content.capacity()+" ->"+content.readableBytes() );
+            byte[] bytes = new byte[content.readableBytes()];
+            int readerIndex = content.readerIndex();
+            content.getBytes(readerIndex, bytes);
+            String read = new String(bytes);
+            System.out.println("RES"+ read);
 
-            for (int i = 0; i < content.numComponents(); i++) {						//3
-                System.out.println(">>>>>@@@@@@"+content.component(i).toString(CharsetUtil.UTF_8));
-            }
+           /// String[] array = content1.toString(CharsetUtil.UTF_8).split("\\|", -1);
+           /// System.out.println("We got "+array.length);
+            //for(int i = 0; i < array.length; i++) {
+                //System.out.println("Working on "+array[i]);
 
-            List<ByteBuf> buffers = content.decompose(0, content.numComponents());
-           // System.out.println("Starting parser r3 >>"+buffers.size());
-            for (ByteBuf buf : buffers) {
-                // This should be false as we decompose the buffer before to not have deep hierarchy
-                System.out.println("3-- >>>"+buf);
-                System.out.println("4-- >>>"+buf.toString());
-                //assertFalse(buf instanceof CompositeByteBuf);
-            }
-            HttpContent httpContent = (HttpContent) response.body();
-            System.out.println("2-- >>>"+httpContent);
-            ByteBuf content1 = httpContent.content();
-            System.out.println("3-- >>>"+content1);
-           // String responseString = "";
-           // byte[] contentBts = new byte[content.readableBytes()];
-            //content.readBytes(contentBts);
-            //ReferenceCountUtil.release(content);
-            System.out.println("-- >>>"+content1.toString());
-
-            String[] array = content1.toString(CharsetUtil.UTF_8).split("\\|", -1);
-            System.out.println("We got "+array.length);
-            for(int i = 0; i < array.length; i++) {
-                System.out.println("Working on "+array[i]);
-                byte[] input_part1 = array[i].getBytes("UTF-8");
+                byte[] input_part1 = read.getBytes("UTF-8");
 
                 AsyncXMLStreamReader<AsyncByteArrayFeeder> asyncXMLStreamReader = new InputFactoryImpl().createAsyncFor(input_part1);
                 final AsyncInputFeeder asyncInputFeeder = asyncXMLStreamReader.getInputFeeder();
@@ -107,14 +89,16 @@ public class TestXml {
                 } while (type != XMLEvent.END_DOCUMENT);
 
                 asyncXMLStreamReader.close();
-            }
+            //}
         } catch (Exception e) {
             e.printStackTrace();
         }
         return Flux.just(input);
     }
 
+    private static void handleArray(byte[] array, int offset, int len) {
 
+    }
     public Flux runMe() {
         System.out.println("Run me is called");
         ArrayList<String> input =  new ArrayList<String>();
