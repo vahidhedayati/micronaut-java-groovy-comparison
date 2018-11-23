@@ -110,7 +110,9 @@ public class TestXml {
                             //input.add("end element: " + asyncXMLStreamReader.getName());
                             if (asyncXMLStreamReader.getName().toString() == "order") {
                                 recordItem = false;
-                                orders.add(order);
+                                //orders.add(order);
+                                Orders order1 = ordersRepository.save(order.getName(), order.getPrice(), Duration.ofMinutes(222222), order.getDescription()).block();
+                                input.add(order1);
                                 lastItem = "";
                             }
                             break;
@@ -129,14 +131,15 @@ public class TestXml {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("We have "+orders.size());
-            for (int a=0; a < orders.size(); a++) {
+            System.out.println("We have "+input.size());
+           /* for (int a=0; a < orders.size(); a++) {
                 IncommingOrders orders1 = orders.get(a);
                 //System.out.println("About to save order"+orders1.getName());
                 input.add(ordersRepository.save(
                         orders1.getName(), orders1.getPrice(), Duration.ofMinutes(222222), orders1.getDescription()
                 ).block());
             }
+            */
 
             return input;
         });

@@ -22,7 +22,7 @@ public interface ProductOperations<T extends Product> {
     HttpResponse status();
 
     @Get("/find/{name}")
-    Maybe<T> find(String name);
+    Maybe<Product> find(String name);
 
 
     @Post("/")

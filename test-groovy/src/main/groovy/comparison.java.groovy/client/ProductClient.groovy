@@ -6,7 +6,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.client.annotation.Client
 import io.reactivex.Maybe
 
-@Client(id = "product" , path="/product")
+@Client(id = "product" , path="/products")
 interface ProductClient {
 
 
