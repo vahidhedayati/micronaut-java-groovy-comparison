@@ -53,14 +53,14 @@ public class ProductController implements ProductOperations<Product> {
     @Get("/find/{name}")
     @Override
     public Maybe<Product> find(String name) {
-        System.out.println("Att "+name);
+        //System.out.println("Att "+name);
         Maybe<Product> o = Flowable.fromPublisher(
                 getCollection()
                         .find(eq("name", name))
                         .limit(1)
         ).firstElement();
 
-        System.out.println("__________________________________Found "+o.subscribe());
+        //System.out.println("__________________________________Found "+o.subscribe());
         return o;
     }
 

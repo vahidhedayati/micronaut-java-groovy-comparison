@@ -7,11 +7,14 @@ import com.fasterxml.aalto.stax.InputFactoryImpl
 import comparison.java.groovy.domain.Orders
 import comparison.java.groovy.view.IncommingOrders
 import io.micronaut.http.HttpResponse
+import io.netty.buffer.ByteBuf
 import io.netty.buffer.CompositeByteBuf
+import io.netty.buffer.Unpooled
 import reactor.core.publisher.Mono
 
 import javax.inject.Singleton
 import javax.xml.stream.events.XMLEvent
+import java.nio.charset.Charset
 import java.time.Duration
 
 @Singleton
@@ -23,14 +26,22 @@ class TestXml {
         List<Orders> input =new ArrayList<>();
         List<IncommingOrders> orders = new ArrayList<>();
         try {
+            System.out.println("Starting parser 1"+response.body() );
             CompositeByteBuf content = (CompositeByteBuf) response.body();
-            println "-- content = $content"
+            //System.out.println("Starting parser 1"+content.capacity()+" ->"+content.readableBytes() );
+            System.out.println( content.readableBytes());
+            byte[] data = new byte[content.readableBytes()];
+            ByteBuf buffer2 = Unpooled.buffer(content.readableBytes());
+            String buff = buffer2.toString(Charset.defaultCharset());
+            System.out.println("BGG "+buff);
 
-            //content.retain();
             byte[] bytes = new byte[content.readableBytes()];
             int readerIndex = content.readerIndex();
+            //  System.out.println("BYTES  AND INDEX ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-- "+bytes+" -------"+readerIndex+" -->"+new String(bytes));
             content.getBytes(readerIndex, bytes);
             String read = new String(bytes);
+            System.out.println("RES"+ read);
+
             //System.out.println("RES"+ read);
 
             /**

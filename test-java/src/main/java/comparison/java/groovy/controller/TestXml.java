@@ -7,13 +7,16 @@ import com.fasterxml.aalto.stax.InputFactoryImpl;
 import comparison.java.groovy.domain.Orders;
 import comparison.java.groovy.view.IncommingOrders;
 import io.micronaut.http.HttpResponse;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.Unpooled;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.inject.Singleton;
 import javax.xml.stream.events.XMLEvent;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +29,25 @@ public class TestXml {
        List<Orders> input =new ArrayList<>();
         List<IncommingOrders> orders = new ArrayList<>();
         try {
+
+            System.out.println("Starting parser 1"+response.body() );
             CompositeByteBuf content = (CompositeByteBuf) response.body();
+            //System.out.println("Starting parser 1"+content.capacity()+" ->"+content.readableBytes() );
+            //System.out.println( content.readableBytes());
+           // byte[] data = new byte[content.readableBytes()];
+          //  ByteBuf buffer2 = Unpooled.buffer(content.readableBytes());
+           // String buff = buffer2.toString(Charset.defaultCharset());
+           // System.out.println("BGG "+buff);
+
             byte[] bytes = new byte[content.readableBytes()];
             int readerIndex = content.readerIndex();
+          //  System.out.println("BYTES  AND INDEX ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-- "+bytes+" -------"+readerIndex+" -->"+new String(bytes));
             content.getBytes(readerIndex, bytes);
-            String read = new String(bytes);
-            //System.out.println("RES"+ read);
+            String read = new String(bytes).trim();
+            System.out.println("RES"+ read);
 
-                byte[] input_part1 = read.getBytes("UTF-8");
+
+            byte[] input_part1 = read.getBytes("UTF-8");
 
                 AsyncXMLStreamReader<AsyncByteArrayFeeder> asyncXMLStreamReader = new InputFactoryImpl().createAsyncFor(input_part1);
                 final AsyncInputFeeder asyncInputFeeder = asyncXMLStreamReader.getInputFeeder();
@@ -56,6 +70,11 @@ public class TestXml {
                             asyncInputFeeder.endOfInput();
                         }
                     }
+                    // and once we have full event, we just dump out event type (for now)
+                    //System.out.println("Got event of type: "+type);
+                    // could also just copy event as is, using Stax, or do any other normal non-blocking handling:
+                    // xmlStreamWriter.copyEventFromReader(asyncReader, false);
+
                     //handle parser event and extract parsed data
                     switch (type) {
                         case XMLEvent.START_DOCUMENT:
@@ -105,7 +124,7 @@ public class TestXml {
                         case XMLEvent.END_DOCUMENT:
                             //System.out.println("end document");
                            // input.add("end document");
-
+                            asyncInputFeeder.endOfInput();
                             break;
                         default:
                             break;

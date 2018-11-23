@@ -4,10 +4,12 @@ import comparison.java.groovy.client.StreamClient
 import comparison.java.groovy.domain.Orders
 import comparison.java.groovy.view.Product
 import io.micronaut.context.annotation.Value
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.netty.buffer.CompositeByteBuf
 import io.reactivex.Flowable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -32,6 +34,21 @@ class OrdersController {
     @Get(uri = "/xmltest")
     public Mono<List<Orders>>  xmltest() {
         return testXml.parseXml(ordersRepository,streamClient.test());
+    }
+
+    @Get(uri="/testxml")
+    public String testxml() {
+        System.out.println("Reading Response body test");
+        HttpResponse response = streamClient.test();
+        CompositeByteBuf content = (CompositeByteBuf) response.body();
+
+        byte[] bytes = new byte[content.readableBytes()];
+        int readerIndex = content.readerIndex();
+        content.getBytes(readerIndex, bytes);
+        String read = new String(bytes).trim();
+        //System.out.println("RES"+ read);
+        return read;
+
     }
 
     /**

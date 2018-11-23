@@ -32,8 +32,10 @@ public class StreamController {
             sequences.add(encodeAsXml(new Orders("a"+a, "a"+a, new BigDecimal(12.22))));
         }
         //System.out.println("About to test:: "+String.join(",",sequences));
-        return HttpResponse.ok("<orders>\n"+String.join(" ",sequences)+"</orders>\n")
-                .contentType(MediaType.APPLICATION_XML_TYPE);
+        //return HttpResponse.ok("<orders>\n"+String.join(" ",sequences)+"</orders>\n")
+          //      .contentType(MediaType.APPLICATION_XML_TYPE);
+
+        return HttpResponse.ok("<?xml version=\"1.0\" encoding=\"utf-8\"?><current_orders>"+encodeAsXml(new Orders("a1", "a1", new BigDecimal(12.22)))+"</current_orders>").contentType(MediaType.APPLICATION_XML_TYPE);
 
         //return HttpResponse.ok(  encodeAsXml(new Orders("a", "a description", new BigDecimal(12.22)))).contentType(MediaType.APPLICATION_XML_TYPE);
     }

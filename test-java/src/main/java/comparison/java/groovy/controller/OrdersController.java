@@ -3,13 +3,12 @@ package comparison.java.groovy.controller;
 import comparison.java.groovy.client.StreamClient;
 import comparison.java.groovy.domain.Orders;
 import io.micronaut.context.annotation.Value;
-import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import io.netty.buffer.CompositeByteBuf;
 import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,7 +17,6 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.Object;
 
 @Controller("/orders")
 public class OrdersController {
@@ -62,6 +60,20 @@ public class OrdersController {
     }
 
 
+    @Get(uri="/testxml")
+    public String testxml() {
+        System.out.println("Reading Response body test");
+        HttpResponse response = streamClient.test();
+        CompositeByteBuf content = (CompositeByteBuf) response.body();
+
+        byte[] bytes = new byte[content.readableBytes()];
+        int readerIndex = content.readerIndex();
+        content.getBytes(readerIndex, bytes);
+        String read = new String(bytes).trim();
+        //System.out.println("RES"+ read);
+        return read;
+
+    }
     @Get(uri = "/test")
     public Mono<List<Orders>> test() {
         List<String> sequences = new ArrayList<>();

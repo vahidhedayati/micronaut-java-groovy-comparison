@@ -56,9 +56,9 @@ public class OrdersRepository {
 
         Maybe<Product> product =  productClient.find(name);
         if (product!=null) {
-            product.subscribe(beer -> System.out.println("Current product Object -->>>" + beer.getName()));
+           // product.subscribe(beer -> System.out.println("Current product Object -->>>" + beer.getName()));
         } else {
-            System.out.println("ERRRRR");
+           // System.out.println("ERRRRR");
         }
         ZonedDateTime expiryDate = ZonedDateTime.now().plus(duration);
         return Mono.from(product.toFlowable()).flatMap(productInstance -> {
@@ -70,7 +70,7 @@ public class OrdersRepository {
             Mono<Orders> o =  redisApi.hmset(key,data)
                     .flatMap(success-> redisApi.expireat(key, expiryDate.toEpochSecond() ))
                     .map(ok -> order) ;
-            System.out.println("-------------->"+o.subscribe());
+           // System.out.println("-------------->"+o.subscribe());
             return o;
         });
 
@@ -83,7 +83,7 @@ public class OrdersRepository {
             Duration duration,
             String description) {
 
-        System.out.println("Attempting to save ->>>"+name);
+       // System.out.println("Attempting to save ->>>"+name);
 
 
 
@@ -104,7 +104,7 @@ public class OrdersRepository {
                     Mono<Orders> o =  redisApi.hmset(key,data)
                             .flatMap(success-> redisApi.expireat(key, expiryDate.toEpochSecond() ))
                             .map(ok -> order) ;
-                    System.out.println("-------------->"+o.subscribe());
+                   // System.out.println("-------------->"+o.subscribe());
                     return o;
                 });
     }
@@ -119,7 +119,7 @@ public class OrdersRepository {
 
     private Function<String, Mono<? extends Orders>> keyToOrder(RedisReactiveCommands<String, String> commands) {
         return key -> {
-            System.out.println("JAVA KEY ------------------------------------------------->>>>"+key);
+          //  System.out.println("JAVA KEY ------------------------------------------------->>>>"+key);
             Flux<KeyValue<String, String>> values = commands.hmget(key, "price", "description");
             Map<String, String> map = new HashMap<>(3);
             return values.reduce(map, (all, keyValue) -> {
