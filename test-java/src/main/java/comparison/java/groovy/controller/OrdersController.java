@@ -10,6 +10,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.netty.buffer.CompositeByteBuf;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -56,22 +57,27 @@ public class OrdersController {
 
     @Get(uri = "/xmltest")
     public Mono<List<Orders>>  xmltest() {
-        return testXml.parseXml(ordersRepository,streamClient.test());
+        return testXml.parseXml(ordersRepository,streamClient.test().blockingGet());
     }
 
 
     @Get(uri="/testxml")
-    public String testxml() {
+    public Single testxml() {
         System.out.println("Reading Response body test");
-        HttpResponse response = streamClient.test();
-        CompositeByteBuf content = (CompositeByteBuf) response.body();
+        Single<HttpResponse<?>> response = streamClient.test();
+        return response.map(res-> {
+            CompositeByteBuf content = (CompositeByteBuf) res.body();
+            content.retain();
+            System.out.println("Status: " + res.getStatus());
+            byte[] bytes = new byte[content.readableBytes()];
+            int readerIndex = content.readerIndex();
+            content.getBytes(readerIndex, bytes);
+            String read = new String(bytes).trim();
+            System.out.println("RES"+ read);
+            content.release();
+            return read;
+        });
 
-        byte[] bytes = new byte[content.readableBytes()];
-        int readerIndex = content.readerIndex();
-        content.getBytes(readerIndex, bytes);
-        String read = new String(bytes).trim();
-        //System.out.println("RES"+ read);
-        return read;
 
     }
     @Get(uri = "/test")

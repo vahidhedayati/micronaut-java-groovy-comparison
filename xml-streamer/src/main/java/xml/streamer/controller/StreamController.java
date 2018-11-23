@@ -5,6 +5,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.reactivex.Single;
 import xml.streamer.view.Orders;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ import java.util.List;
 public class StreamController {
 
     @Get("/test")
-    public HttpResponse<?> test() {
+    public Single<HttpResponse<?>> test() {
 
         List<String> sequences = new ArrayList<>();
         for (int a=0; a < 1000; a++) {
@@ -35,7 +36,7 @@ public class StreamController {
         //return HttpResponse.ok("<orders>\n"+String.join(" ",sequences)+"</orders>\n")
           //      .contentType(MediaType.APPLICATION_XML_TYPE);
 
-        return HttpResponse.ok("<?xml version=\"1.0\" encoding=\"utf-8\"?><current_orders>"+encodeAsXml(new Orders("a1", "a1", new BigDecimal(12.22)))+"</current_orders>").contentType(MediaType.APPLICATION_XML_TYPE);
+        return Single.just(HttpResponse.ok("<?xml version=\"1.0\" encoding=\"utf-8\"?><current_orders>"+encodeAsXml(new Orders("a1", "a1", new BigDecimal(12.22)))+"</current_orders>").contentType(MediaType.APPLICATION_XML_TYPE));
 
         //return HttpResponse.ok(  encodeAsXml(new Orders("a", "a description", new BigDecimal(12.22)))).contentType(MediaType.APPLICATION_XML_TYPE);
     }
