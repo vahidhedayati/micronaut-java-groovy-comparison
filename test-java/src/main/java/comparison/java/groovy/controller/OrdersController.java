@@ -57,15 +57,15 @@ public class OrdersController {
     }
 
     @Get(uri = "/xmltest")
-    public Mono<List<Orders>>  xmltest() {
-        return testXml.parseXml(ordersRepository,streamClient.test().blockingGet());
+    public Single  xmltest() {
+        return testXml.parseXml(ordersRepository,streamClient.test());
     }
 
 
     @Get(uri="/testxml")
     public Single testxml() {
         System.out.println("Reading Response body test");
-        Single<HttpResponse<CompositeByteBuf>> response = streamClient.test();
+        Single<HttpResponse<CompositeByteBuf>> response = streamClient.basicTest();
         return response.map(res-> {
             System.out.println("Status: " + res.getClass()+" "+ res.getStatus()+" "+res.getHeaders()+" "+res.getBody());
             CompositeByteBuf content = (CompositeByteBuf) res.body();

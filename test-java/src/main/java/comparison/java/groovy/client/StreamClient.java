@@ -10,6 +10,9 @@ import io.reactivex.Single;
 @Client(id = "streamer" , path="/stream")
 public interface StreamClient {
 
+    @Get("/basicTest")
+    Single<HttpResponse<CompositeByteBuf>> basicTest();
+
     @Get("/test")
     Single<HttpResponse<CompositeByteBuf>> test();
 

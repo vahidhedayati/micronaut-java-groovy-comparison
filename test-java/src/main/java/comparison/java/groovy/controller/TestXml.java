@@ -10,6 +10,7 @@ import io.micronaut.http.HttpResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
+import io.reactivex.Single;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,30 +25,22 @@ import java.util.List;
 @Singleton
 public class TestXml {
 
+    public  Single parseXml(  OrdersRepository ordersRepository,  Single<HttpResponse<CompositeByteBuf>> res ) {
+        return res.map(response-> {
+            List<Orders> input =new ArrayList<>();
+            List<IncommingOrders> orders = new ArrayList<>();
+            try {
 
-    public  Mono<List<Orders>> parseXml(  OrdersRepository ordersRepository,HttpResponse response ) {
-       List<Orders> input =new ArrayList<>();
-        List<IncommingOrders> orders = new ArrayList<>();
-        try {
+                System.out.println("Starting parser 1" + response.body());
+                CompositeByteBuf content = (CompositeByteBuf) response.body();
 
-            System.out.println("Starting parser 1"+response.body() );
-            CompositeByteBuf content = (CompositeByteBuf) response.body();
-            //System.out.println("Starting parser 1"+content.capacity()+" ->"+content.readableBytes() );
-            //System.out.println( content.readableBytes());
-           // byte[] data = new byte[content.readableBytes()];
-          //  ByteBuf buffer2 = Unpooled.buffer(content.readableBytes());
-           // String buff = buffer2.toString(Charset.defaultCharset());
-           // System.out.println("BGG "+buff);
+                byte[] bytes = new byte[content.readableBytes()];
+                int readerIndex = content.readerIndex();
+                content.getBytes(readerIndex, bytes);
+                String read = new String(bytes).trim();
+                //System.out.println("RES" + read);
 
-            byte[] bytes = new byte[content.readableBytes()];
-            int readerIndex = content.readerIndex();
-          //  System.out.println("BYTES  AND INDEX ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-- "+bytes+" -------"+readerIndex+" -->"+new String(bytes));
-            content.getBytes(readerIndex, bytes);
-            String read = new String(bytes).trim();
-            System.out.println("RES"+ read);
-
-
-            byte[] input_part1 = read.getBytes("UTF-8");
+                byte[] input_part1 = read.getBytes("UTF-8");
 
                 AsyncXMLStreamReader<AsyncByteArrayFeeder> asyncXMLStreamReader = new InputFactoryImpl().createAsyncFor(input_part1);
                 final AsyncInputFeeder asyncInputFeeder = asyncXMLStreamReader.getInputFeeder();
@@ -55,10 +48,10 @@ public class TestXml {
                 int type = 0;
 
                 int bufferFeedLength = 1; // feed 1 byte at a time to the asynchronous parser
-                boolean recordItem=false;
+                boolean recordItem = false;
 
                 IncommingOrders order = new IncommingOrders();
-                String lastItem="";
+                String lastItem = "";
                 do {
                     //keep looping till event is complete
                     while ((type = asyncXMLStreamReader.next()) == AsyncXMLStreamReader.EVENT_INCOMPLETE) {
@@ -79,20 +72,20 @@ public class TestXml {
                     switch (type) {
                         case XMLEvent.START_DOCUMENT:
                             //System.out.println("start document");
-                           // input.add("start document");
+                            // input.add("start document");
 
                             break;
                         case XMLEvent.START_ELEMENT:
                             //System.out.println("start element: " + asyncXMLStreamReader.getName());
                             //input.add("start element: " + asyncXMLStreamReader.getName());
 
-                            if (asyncXMLStreamReader.getName().toString()=="order") {
-                                recordItem=true;
-                                lastItem="";
+                            if (asyncXMLStreamReader.getName().toString() == "order") {
+                                recordItem = true;
+                                lastItem = "";
                                 order = new IncommingOrders();
                             } else {
                                 if (recordItem) {
-                                    lastItem=asyncXMLStreamReader.getName().toString();
+                                    lastItem = asyncXMLStreamReader.getName().toString();
                                 }
                             }
 
@@ -115,15 +108,15 @@ public class TestXml {
                         case XMLEvent.END_ELEMENT:
                             //System.out.println("end element: " + asyncXMLStreamReader.getName());
                             //input.add("end element: " + asyncXMLStreamReader.getName());
-                            if (asyncXMLStreamReader.getName().toString()=="order") {
-                                recordItem=false;
+                            if (asyncXMLStreamReader.getName().toString() == "order") {
+                                recordItem = false;
                                 orders.add(order);
-                                lastItem="";
+                                lastItem = "";
                             }
                             break;
                         case XMLEvent.END_DOCUMENT:
                             //System.out.println("end document");
-                           // input.add("end document");
+                            // input.add("end document");
                             asyncInputFeeder.endOfInput();
                             break;
                         default:
@@ -133,19 +126,20 @@ public class TestXml {
                 } while (type != XMLEvent.END_DOCUMENT);
 
                 asyncXMLStreamReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("We have "+orders.size());
+            for (int a=0; a < orders.size(); a++) {
+                IncommingOrders orders1 = orders.get(a);
+                //System.out.println("About to save order"+orders1.getName());
+                input.add(ordersRepository.save(
+                        orders1.getName(), orders1.getPrice(), Duration.ofMinutes(222222), orders1.getDescription()
+                ).block());
+            }
 
-        System.out.println("We have "+orders.size());
-        for (int a=0; a < orders.size(); a++) {
-            IncommingOrders orders1 = orders.get(a);
-            //System.out.println("About to save order"+orders1.getName());
-            input.add(ordersRepository.save(
-                    orders1.getName(), orders1.getPrice(), Duration.ofMinutes(222222), orders1.getDescription()
-            ).block());
-        }
-        return Mono.just(input);
+            return input;
+        });
     }
 
 

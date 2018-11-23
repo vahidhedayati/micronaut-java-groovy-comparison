@@ -33,14 +33,14 @@ class OrdersController {
     }
 
     @Get(uri = "/xmltest")
-    Mono<List<Orders>>  xmltest() {
-        return testXml.parseXml(ordersRepository,streamClient.test().blockingGet());
+    Single  xmltest() {
+        return testXml.parseXml(ordersRepository,streamClient.test());
     }
 
     @Get(uri="/testxml")
     Single testxml() {
         System.out.println("Reading Response body test");
-        Single<HttpResponse<CompositeByteBuf>> response = streamClient.test();
+        Single<HttpResponse<CompositeByteBuf>> response = streamClient.basicTest();
 
         return response.map({res->
             System.out.println("Status: " + res.getClass()+" "+ res.getStatus()+" "+res.getHeaders()+" "+res.getBody());

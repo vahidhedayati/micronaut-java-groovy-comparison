@@ -22,6 +22,6 @@ public class ProductFallBack  implements ProductClient {
     //@Get("/find/{name}")
     public Maybe<Product> find(String name) {
         System.out.println("Fall back is called for "+name);
-        return Single.just(new Product("Blank","description",0,0.00)).toMaybe();
+        return Single.just(new Product("Fallback","fallback description",10,10.00)).toMaybe();
     }
 }

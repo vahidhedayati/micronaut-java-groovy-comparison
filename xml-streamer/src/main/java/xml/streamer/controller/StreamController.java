@@ -25,6 +25,12 @@ import java.util.List;
 @Controller("/stream")
 public class StreamController {
 
+    @Get("/basicTest")
+    public Single<HttpResponse<?>> basicTest() {
+        System.out.println("TEST IS CALLED");
+        return Single.just(HttpResponse.ok("<current_orders>"+encodeAsXml(new Orders("a1", "a1", new BigDecimal(12.22)))+"</current_orders>").contentType(MediaType.APPLICATION_XML_TYPE));
+    }
+
     @Get("/test")
     public Single<HttpResponse<?>> test() {
 
@@ -33,12 +39,12 @@ public class StreamController {
             sequences.add(encodeAsXml(new Orders("a"+a, "a"+a, new BigDecimal(12.22))));
         }
         //System.out.println("About to test:: "+String.join(",",sequences));
-        //return HttpResponse.ok("<orders>\n"+String.join(" ",sequences)+"</orders>\n")
-          //      .contentType(MediaType.APPLICATION_XML_TYPE);
+        return Single.just(HttpResponse.ok("<orders>\n"+String.join(" ",sequences)+"</orders>\n")
+              .contentType(MediaType.APPLICATION_XML_TYPE));
 
-        System.out.println("TEST IS CALLED");
+        //System.out.println("TEST IS CALLED");
 
-        return Single.just(HttpResponse.ok("<current_orders>"+encodeAsXml(new Orders("a1", "a1", new BigDecimal(12.22)))+"</current_orders>").contentType(MediaType.APPLICATION_XML_TYPE));
+        //return Single.just(HttpResponse.ok("<current_orders>"+encodeAsXml(new Orders("a1", "a1", new BigDecimal(12.22)))+"</current_orders>").contentType(MediaType.APPLICATION_XML_TYPE));
 
         //return HttpResponse.ok(  encodeAsXml(new Orders("a", "a description", new BigDecimal(12.22)))).contentType(MediaType.APPLICATION_XML_TYPE);
     }
