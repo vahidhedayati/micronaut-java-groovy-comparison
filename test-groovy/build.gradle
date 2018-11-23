@@ -3,13 +3,25 @@ apply plugin:"groovy"
 
 version "0.1"
 group "test.groovy"
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'io.micronaut:micronaut-bom:1.0.1'
+    }
+}
 dependencies {
     compile "io.micronaut:micronaut-runtime-groovy"
     implementation "io.micronaut:micronaut-validation"
     implementation "io.micronaut:micronaut-http-client"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-inject-groovy"
-
+    compile "io.micronaut:micronaut-inject"
+    compile "io.micronaut:micronaut-runtime"
     implementation "io.micronaut.configuration:micronaut-redis-lettuce"
 
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"

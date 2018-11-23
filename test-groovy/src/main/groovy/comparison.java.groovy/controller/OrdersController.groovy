@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.netty.buffer.CompositeByteBuf
 import io.reactivex.Flowable
+import io.reactivex.Single
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -32,25 +33,31 @@ class OrdersController {
     }
 
     @Get(uri = "/xmltest")
-    public Mono<List<Orders>>  xmltest() {
-        return testXml.parseXml(ordersRepository,streamClient.test());
+    Mono<List<Orders>>  xmltest() {
+        return testXml.parseXml(ordersRepository,streamClient.test().blockingGet());
     }
 
     @Get(uri="/testxml")
-    public String testxml() {
+    Single testxml() {
         System.out.println("Reading Response body test");
-        HttpResponse response = streamClient.test();
-        CompositeByteBuf content = (CompositeByteBuf) response.body();
+        Single<HttpResponse<CompositeByteBuf>> response = streamClient.test();
 
-        byte[] bytes = new byte[content.readableBytes()];
-        int readerIndex = content.readerIndex();
-        content.getBytes(readerIndex, bytes);
-        String read = new String(bytes).trim();
-        //System.out.println("RES"+ read);
+        return response.map({res->
+            System.out.println("Status: " + res.getClass()+" "+ res.getStatus()+" "+res.getHeaders()+" "+res.getBody());
+                CompositeByteBuf content = res.body() as CompositeByteBuf
+                //content.retain();
+
+                byte[] bytes = new byte[content.readableBytes()];
+                int readerIndex = content.readerIndex();
+                content.getBytes(readerIndex, bytes);
+                String read = new String(bytes).trim();
+                System.out.println("RES"+ read);
+               // content.release();
         return read;
+    });
+
 
     }
-
     /**
      * A non-blocking infinite JSON stream of offers that change every 10 seconds
      * @return A {@link reactor.core.publisher.Flux} stream of JSON objects

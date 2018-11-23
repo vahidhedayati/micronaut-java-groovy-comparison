@@ -8,6 +8,7 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.client.FullNettyClientHttpResponse;
 import io.netty.buffer.CompositeByteBuf;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -64,8 +65,9 @@ public class OrdersController {
     @Get(uri="/testxml")
     public Single testxml() {
         System.out.println("Reading Response body test");
-        Single<HttpResponse<?>> response = streamClient.test();
+        Single<HttpResponse<CompositeByteBuf>> response = streamClient.test();
         return response.map(res-> {
+            System.out.println("Status: " + res.getClass()+" "+ res.getStatus()+" "+res.getHeaders()+" "+res.getBody());
             CompositeByteBuf content = (CompositeByteBuf) res.body();
             content.retain();
             System.out.println("Status: " + res.getStatus());
